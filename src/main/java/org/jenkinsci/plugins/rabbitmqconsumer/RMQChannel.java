@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jenkinsci.plugins.rabbitmqconsumer.events.RMQChannelEvent;
@@ -155,17 +156,26 @@ public class RMQChannel implements RMQChannelNotifier, ShutdownListener {
         public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body)
                 throws IOException {
 
-            long deliveryTag = envelope.getDeliveryTag();
+            try {
 
-            if (!properties.getAppId().equals(RabbitmqConsumeItem.DEBUG_APPID)) {
-                if (debug) {
-                    ApplicationMessageNotifyUtil.fireOnReceive(debugId, queueName, new String(body, "UTF-8"));
+                long deliveryTag = envelope.getDeliveryTag();
+
+                if (!properties.getAppId().equals(RabbitmqConsumeItem.DEBUG_APPID)) {
+                    if (debug) {
+                        ApplicationMessageNotifyUtil.fireOnReceive(debugId, queueName, new String(body, "UTF-8"));
+                    }
+                    if (CONTENT_TYPE_JSON.equals(properties.getContentType()) && appIds.contains(properties.getAppId())) {
+                        ApplicationMessageNotifyUtil.fireOnReceive(appIds, queueName, new String(body, "UTF-8"));
+                    }
                 }
-                if (CONTENT_TYPE_JSON.equals(properties.getContentType()) && appIds.contains(properties.getAppId())) {
-                    ApplicationMessageNotifyUtil.fireOnReceive(appIds, queueName, new String(body, "UTF-8"));
-                }
+
+                channel.basicAck(deliveryTag, false);
+
+            } catch (IOException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING, "caught exception in delivery handler", e);
             }
-            channel.basicAck(deliveryTag, false);
         }
     }
 
