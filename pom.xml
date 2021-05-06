@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.2</version><!-- which version of Jenkins is this plugin built against? -->
+    <version>3.50</version><!-- which version of Jenkins is this plugin built against? -->
     <relativePath />
   </parent>
 
@@ -35,18 +35,10 @@
 
   <properties>
     <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>2.7.1</jenkins.version>
-    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
-    <java.level>7</java.level>
-    <!-- Jenkins Test Harness version you use to test the plugin. -->
-    <!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
-    <!-- <jenkins-test-harness.version>2.13</jenkins-test-harness.version> -->
-    <!-- Other properties you may want to use:
-        ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-        ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-    -->
+    <jenkins.version>2.164.3</jenkins.version>
+    <java.level>8</java.level>
     <jmockit.version>1.38</jmockit.version>
-    <amqp.client.version>3.4.1</amqp.client.version>
+    <amqp.client.version>5.6.0</amqp.client.version>
     <commons.validator.version>1.6</commons.validator.version>
     <commons.digester.version>2.1</commons.digester.version>
     <commons.lang3.version>3.7</commons.lang3.version>
@@ -89,11 +81,19 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>
+            -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+          </argLine>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>8</source>
+          <target>8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -113,13 +113,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.jenkins-ci.tools</groupId>
-        <artifactId>maven-hpi-plugin</artifactId>
-        <configuration>
-          <defaultPort>8091</defaultPort>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

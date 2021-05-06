@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.rabbitmqconsumer.channels.AbstractRMQChannel;
@@ -361,7 +362,7 @@ public class RMQConnection implements ShutdownListener, RMQChannelListener, RMQC
                 if (!usedQueueNames.contains(ch.getQueueName())) {
                     try {
                         ch.close();
-                    } catch (IOException ex) {
+                    } catch (IOException | TimeoutException ex) {
                         unclosedChannels.add(ch);
                     }
                 }
@@ -384,7 +385,7 @@ public class RMQConnection implements ShutdownListener, RMQChannelListener, RMQC
             for (AbstractRMQChannel h : rmqChannels) {
                 try {
                     h.close();
-                } catch (IOException ex) {
+                } catch (IOException | TimeoutException ex) {
                     unclosedChannels.add(h);
                 }
             }
@@ -407,7 +408,7 @@ public class RMQConnection implements ShutdownListener, RMQChannelListener, RMQC
             for (ConsumeRMQChannel h : channels) {
                 try {
                     h.close();
-                } catch (IOException ex) {
+                } catch (IOException | TimeoutException ex) {
                     unclosedChannels.add(h);
                 }
             }
