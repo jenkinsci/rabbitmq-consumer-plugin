@@ -13,27 +13,18 @@
     so it should be straightforward to find them.
   -->
   <f:section title="${%RabbitMQ Consumer}">
-    <script type="text/javascript">
-      function checkConnection() {
-        var descriptor = <st:bind value="${descriptor}" />
-        descriptor.isOpen(function (t) {
-          if(t.responseObject() == true) {
-            document.getElementById('rabbitmq-status-text').innerHTML = "${%connected}";
-            document.getElementById('rabbitmq-status-img').src = "${imagesURL}/16x16/blue.png";
-          } else {
-            document.getElementById('rabbitmq-status-text').innerHTML = "${%disconnected}";
-            document.getElementById('rabbitmq-status-img').src = "${imagesURL}/16x16/red.png";
-          }
-        });
-      }
-      checkConnection();
-      window.setInterval(function(){checkConnection()}, 15000);
-    </script>
+    <j:if test="${descriptor != null}">
+      <st:bind var="rabbitmqConsumerCspDescriptor" value="${descriptor}" />
+    </j:if>
+    <st:adjunct includes="org.jenkinsci.plugins.rabbitmqconsumer.GlobalRabbitmqConfiguration.connection-status" />
     <f:entry title="${%Enable consumer}" field="enableConsumer">
       <f:checkbox />
     </f:entry>
     <f:entry title="${%Status}">
-      <img id="rabbitmq-status-img" /><span id="rabbitmq-status-text" />
+      <img id="rabbitmq-status-img" /><span id="rabbitmq-status-text"
+        data-connected="${%connected}" data-disconnected="${%disconnected}"
+        data-connected-icon="${imagesURL}/16x16/blue.png"
+        data-disconnected-icon="${imagesURL}/16x16/red.png" />
     </f:entry>
     <f:entry title="${%Service URI}" field="serviceUri">
       <f:textbox />

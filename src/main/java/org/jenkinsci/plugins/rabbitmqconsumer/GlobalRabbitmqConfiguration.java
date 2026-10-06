@@ -20,6 +20,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.PossibleAuthenticationFailureException;
 
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 
 /**
  * Descriptor for global configuration.
@@ -271,9 +273,11 @@ public final class GlobalRabbitmqConfiguration extends GlobalConfiguration {
      * @throws ServletException
      *             exception for servlet.
      */
+    @RequirePOST
     public FormValidation doTestConnection(@QueryParameter("serviceUri") String serviceUri,
             @QueryParameter("userName") String userName,
             @QueryParameter("userPassword") Secret userPassword) throws ServletException {
+        Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
         String uri = StringUtils.strip(StringUtils.stripToNull(serviceUri), "/");
         if (uri != null && URL_VALIDATOR.isValid(uri)) {
             try {
